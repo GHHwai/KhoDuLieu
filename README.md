@@ -22,13 +22,11 @@ Thực hiện các câu lệnh SQL như CREATE, INSERT, SELECT, UPDATE và
 DELETE. - Nhập dữ liệu từ tệp CSV vào bảng để phục vụ việc truy vấn và
 phân tích.
 Phần mềm và liên kết tải
-- MySQL Community Server -- máy chủ cơ sở dữ liệu MySQL: Tải tại
-  trang chính thức
+- MySQL Community Server -- máy chủ cơ sở dữ liệu MySQL: https://dev.mysql.com/downloads/installer/
 - MySQL Workbench -- giao diện đồ họa để thiết kế cơ sở dữ liệu,
-  viết SQL và quản lý máy chủ: Tải tại trang chính
-  thức
-Khi cài đặt, hãy chọn phiên bản phù hợp với hệ điều hành đang sử dụng và
-làm theo hướng dẫn trên trang chính thức.
+  viết SQL và quản lý máy chủ: https://dev.mysql.com/downloads/installer/
+MySQL Server 8.0+
+MySQL Workbench 8.0+ CE
 3. Tóm tắt
   Công cụ                             Vai trò chính
   Google Colab                        Viết và chạy Python trực tuyến để
