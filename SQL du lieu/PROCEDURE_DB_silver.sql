@@ -1,5 +1,5 @@
 
-USE Heathcare_location;
+USE Healthcare_location;
 GO
 
 IF SCHEMA_ID('silver') IS NULL
