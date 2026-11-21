@@ -8,6 +8,7 @@ Route::get('/diagram', [SchemaController::class, 'diagram'])->name('diagram');
 Route::get('/charts', [SchemaController::class, 'charts'])->name('charts');
 Route::get('/data', [SchemaController::class, 'data'])->name('data');
 Route::get('/api/data', [SchemaController::class, 'dataApi'])->name('api.data');
+Route::get('/finder', [SchemaController::class, 'finder'])->name('finder');
 Route::get('/pipeline', [SchemaController::class, 'pipeline'])->name('pipeline');
 Route::get('/tables/{schemaName}/{name}', [SchemaController::class, 'table'])->name('table');
 Route::get('/procedures/{schemaName}/{name}', [SchemaController::class, 'procedure'])->name('procedure');

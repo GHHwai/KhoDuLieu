@@ -4,8 +4,8 @@
   if (!svg) return;
   const NS = 'http://www.w3.org/2000/svg';
   const mode = svg.dataset.mode;
-  const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-  const layerColor = (l) => css('--' + l) || css('--muted');
+  const css = (n) => `var(${n})`;
+  const layerColor = (l) => `var(--${l}, var(--muted))`;
   const el = (name, attrs = {}, parent) => {
     const e = document.createElementNS(NS, name);
     for (const k in attrs) e.setAttribute(k, attrs[k]);

@@ -8,7 +8,7 @@ class SchemaPagesTest extends TestCase
 {
     public function test_pages_render(): void
     {
-        foreach (['/', '/diagram', '/pipeline', '/charts', '/data', '/tables/gold/DimDate', '/procedures/gold/load_gold', '/api/schema'] as $url) {
+        foreach (['/', '/diagram', '/pipeline', '/charts', '/data', '/finder', '/finder?q=20001', '/finder?q=nonsense', '/tables/gold/DimDate', '/procedures/gold/load_gold', '/api/schema'] as $url) {
             $this->get($url)->assertOk();
         }
     }

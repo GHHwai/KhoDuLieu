@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Services\GoldDataService;
 use App\Services\SchemaRepository;
+use App\Services\SiteFinderService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class SchemaController extends Controller
 {
-    public function __construct(private SchemaRepository $repo, private GoldDataService $gold)
+    public function __construct(private SchemaRepository $repo, private GoldDataService $gold, private SiteFinderService $finder)
     {
     }
 
@@ -38,6 +39,48 @@ class SchemaController extends Controller
     public function dataApi()
     {
         return response()->json($this->gold->summary());
+    }
+
+    public function finder(Request $request)
+    {
+        $schema = $this->repo->get();
+        $submitted = $request->has('q');
+        $q = trim((string) $request->query('q', ''));
+        $opt = [
+            'limit' => (int) $request->query('limit', 10),
+            'exclude_admin' => $submitted ? $request->boolean('exclude_admin') : true,
+            'exclude_school' => $submitted ? $request->boolean('exclude_school') : true,
+            'hospital_only' => $request->boolean('hospital_only'),
+        ];
+        $view = ['schema' => $schema, 'q' => $q, 'opt' => $opt, 'results' => null, 'center' => null, 'error' => null];
+
+        if ($q === '') {
+            return view('finder', $view);
+        }
+
+        try {
+            if (preg_match('/^(\d{5})(-\d{4})?$/', $q, $m)) {
+                $center = $this->finder->geocodeZip($m[1]);
+                if ($center === null) {
+                    $view['error'] = "No sites are located in ZIP {$m[1]}, so its centre is unknown. Try a nearby ZIP or enter latitude,longitude.";
+                    return view('finder', $view);
+                }
+                $center['label'] = "ZIP {$m[1]}";
+            } elseif (preg_match('/^\s*(-?\d{1,3}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)\s*$/', $q, $m)
+                && abs((float) $m[1]) <= 90 && abs((float) $m[2]) <= 180) {
+                $center = ['lat' => (float) $m[1], 'lon' => (float) $m[2], 'label' => 'your point'];
+            } else {
+                $view['error'] = 'Enter a 5-digit ZIP code, or coordinates like 38.9072, -77.0369.';
+                return view('finder', $view);
+            }
+
+            $view['center'] = $center;
+            $view['results'] = $this->finder->nearest($center['lat'], $center['lon'], $opt);
+        } catch (\Throwable $e) {
+            $view['error'] = 'Could not reach the database: ' . \Illuminate\Support\Str::limit($e->getMessage(), 240);
+        }
+
+        return view('finder', $view);
     }
 
     public function pipeline()

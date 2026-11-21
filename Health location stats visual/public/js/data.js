@@ -2,7 +2,7 @@
 (function () {
   const host = document.getElementById('data-charts');
   if (!host) return;
-  const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const css = (n) => `var(${n})`;
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const fmt = (n) => Number(n).toLocaleString();
   const put = (id, html) => { const e = document.getElementById(id); if (e) e.innerHTML = html; };
@@ -10,7 +10,8 @@
   const gold = () => css('--gold');
 
   // horizontal bars
-  function hbar(id, rows, color) {
+  function hbar(id, rows, color, f) {
+    f = f || fmt;
     if (!rows || !rows.length) return empty(id);
     const max = Math.max(...rows.map((r) => +r.value)), L = 190, R = 60, rh = 24, w = 560, h = rows.length * rh + 8;
     let s = '';
@@ -18,8 +19,8 @@
       const y = 4 + i * rh, bw = Math.max(1, ((w - L - R) * r.value) / max);
       const label = String(r.label).length > 28 ? String(r.label).slice(0, 27) + '…' : r.label;
       s += `<text class="c-lab" x="${L - 8}" y="${y + 15}" text-anchor="end">${esc(label)}</text>`;
-      s += `<rect x="${L}" y="${y + 3}" width="${bw}" height="${rh - 8}" rx="3" fill="${color}"><title>${esc(r.label)}: ${fmt(r.value)}</title></rect>`;
-      s += `<text class="c-val" x="${L + bw + 6}" y="${y + 15}">${fmt(r.value)}</text>`;
+      s += `<rect x="${L}" y="${y + 3}" width="${bw}" height="${rh - 8}" rx="3" fill="${color}"><title>${esc(r.label)}: ${f(r.value)}</title></rect>`;
+      s += `<text class="c-val" x="${L + bw + 6}" y="${y + 15}">${f(r.value)}</text>`;
     });
     put(id, `<svg viewBox="0 0 ${w} ${h}" role="img">${s}</svg>`);
   }
@@ -33,8 +34,9 @@
     rows.forEach((r, i) => {
       const bh = (r.value / max) * (base - 28), x = left + i * slot + (slot - bw) / 2;
       s += `<rect x="${x}" y="${base - bh}" width="${bw}" height="${bh}" rx="3" fill="${color}"><title>${esc(r.label)}: ${fmt(r.value)}</title></rect>`;
-      s += `<text class="c-val" x="${x + bw / 2}" y="${base - bh - 5}" text-anchor="middle">${fmt(r.value)}</text>`;
-      s += `<text class="c-lab" x="${x + bw / 2}" y="${base + 16}" text-anchor="middle">${esc(r.label)}</text>`;
+      const dense = slot < 26, step = dense ? Math.ceil(26 / slot) * (slot < 10 ? 2 : 1) : 1;
+      if (!dense || i === rows.length - 1 || r.value === max) s += `<text class="c-val" x="${x + bw / 2}" y="${base - bh - 5}" text-anchor="${i > rows.length - 3 ? 'end' : 'middle'}">${fmt(r.value)}</text>`;
+      if (i % step === 0 || i === rows.length - 1) s += `<text class="c-lab" x="${x + bw / 2}" y="${base + 16}" text-anchor="middle">${esc(r.label)}</text>`;
     });
     put(id, `<svg viewBox="0 0 ${w} ${h}" role="img">${s}</svg>`);
   }
@@ -68,5 +70,9 @@
     columns('d-hours', (d.hours || []).slice().sort((a, b) => order.indexOf(a.label) - order.indexOf(b.label)), gold());
     columns('d-year', d.by_year, css('--fk'));
     scatter('d-map', d.points);
+    hbar('d-percap', d.per_1000, css('--bronze'), (v) => Number(v).toFixed(2));
+    hbar('d-parttime', d.part_time, css('--silver'), (v) => Number(v).toFixed(1) + '%');
+    hbar('d-funnel', d.funnel, css('--gold'));
+    hbar('d-hosp', d.hospital_by_state, css('--fk'));
   });
 })();

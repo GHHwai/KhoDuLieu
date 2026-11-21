@@ -3,8 +3,8 @@
   const host = document.getElementById('charts');
   if (!host) return;
   const NS = 'http://www.w3.org/2000/svg';
-  const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-  const layerCol = (l) => css('--' + l) || css('--muted');
+  const css = (n) => `var(${n})`;
+  const layerCol = (l) => `var(--${l}, var(--muted))`;
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const svg = (w, h, inner) => `<svg viewBox="0 0 ${w} ${h}" role="img">${inner}</svg>`;
   const legend = (items) => `<div class="leg">${items.map(([c, t]) => `<span><i style="background:${c}"></i>${esc(t)}</span>`).join('')}</div>`;
